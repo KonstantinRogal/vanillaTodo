@@ -44,6 +44,29 @@ const createTodo = (title) => {
   todoList.appendChild(todo);
 };
 
+// Getting todos
+const getTodos = () =>
+  fetch(`${API_URL}/api/v1/todos`, {
+    headers: headers,
+  })
+    .then((data) => {
+      return data.json();
+    })
+    .then((data) => {
+      setTimeout(() => {
+        return data.map((todo) => {
+          let newTodo = document.createElement("li");
+          newTodo.innerText = todo.title;
+          todoList.appendChild(newTodo);
+        });
+      }, randomizedNumber());
+    })
+    .catch((err) => {
+      console.log(new Error(err));
+    });
+
+getTodos();
+
 // Loading screen
 const loadingScreenHandler = () => {
   if (isLoading) {
