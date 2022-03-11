@@ -11,7 +11,7 @@ let deleteAllBtn = document.getElementById("delete-all");
 let isLoading = false;
 
 const randomizedNumber = () => {
-  return Math.floor(Math.random() * (10000 - 3000) + 3000);
+  return Math.floor(Math.random() * (5000 - 1000) + 1000);
 };
 
 let headers = {
@@ -33,6 +33,7 @@ const addTodo = (title) => {
         isLoading = true;
         loadingScreenHandler();
         createTodo(title);
+        input.value = "";
       }, randomizedNumber());
     })
     .catch((err) => console.log(err, "aaaaaaaaaaaaaaaaaa"));
@@ -52,20 +53,51 @@ const getTodos = () =>
     .then((data) => {
       return data.json();
     })
-    .then((data) => {
-      setTimeout(() => {
-        return data.map((todo) => {
-          let newTodo = document.createElement("li");
-          newTodo.innerText = todo.title;
-          todoList.appendChild(newTodo);
-        });
-      }, randomizedNumber());
+    .then((todos) => {
+      return todos;
     })
     .catch((err) => {
       console.log(new Error(err));
     });
 
-getTodos();
+const setTodos = () => {
+  getTodos().then((todos) => {
+    setTimeout(() => {
+      todos.map((todo) => {
+        let newTodo = document.createElement("li");
+        newTodo.innerText = todo.title;
+        todoList.appendChild(newTodo);
+      });
+    }, randomizedNumber());
+  });
+};
+setTodos();
+// Delete all todos
+const removeTodo = (id) =>
+  fetch(`${API_URL}/api/v1/todos/${id}`, {
+    headers: headers,
+    method: "DELETE",
+  })
+    .then((data) => {
+      return data.json();
+    })
+    .catch((err) => {
+      console.log(new Error(err));
+    });
+
+const deleteAll = () => {
+  getTodos()
+    .then((todos) => {
+      todos.map((todo) => {
+        removeTodo(todo._id);
+      });
+    })
+    .then(() => {
+      console.log("all deleted");
+      setTodos();
+    })
+    .catch((err) => console.log(err, "Error"));
+};
 
 // Loading screen
 const loadingScreenHandler = () => {
